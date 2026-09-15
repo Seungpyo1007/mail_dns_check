@@ -1,6 +1,11 @@
-# mail_dns_check
+<h1 align="center">mail_dns_check</h1>
 
-[![pub](https://img.shields.io/pub/v/mail_dns_check)](https://pub.dev/packages/mail_dns_check) [![points](https://img.shields.io/pub/points/mail_dns_check)](https://pub.dev/packages/mail_dns_check/score) [![CI](https://github.com/Seungpyo1007/mail_dns_check/actions/workflows/ci.yml/badge.svg)](https://github.com/Seungpyo1007/mail_dns_check/actions/workflows/ci.yml)
+<p align="center">
+  <a href="https://pub.dev/packages/mail_dns_check"><img src="https://img.shields.io/pub/v/mail_dns_check" alt="pub version"></a>
+  <a href="https://pub.dev/packages/mail_dns_check/score"><img src="https://img.shields.io/pub/points/mail_dns_check" alt="pub points"></a>
+  <a href="https://github.com/Seungpyo1007/mail_dns_check/actions/workflows/ci.yml"><img src="https://github.com/Seungpyo1007/mail_dns_check/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/Seungpyo1007/mail_dns_check/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+</p>
 
 Check whether a domain's email DNS is set up correctly: SPF, DMARC, DKIM, and
 MX records, with a stable issue code for every problem. Queries go through
