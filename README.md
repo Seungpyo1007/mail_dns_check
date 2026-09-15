@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Seungpyo1007/mail_dns_check/main/assets/mail_dns_check-logo.png" alt="mail_dns_check logo: an envelope with a check badge" width="128">
+</p>
+
 <h1 align="center">mail_dns_check</h1>
 
 <p align="center">
