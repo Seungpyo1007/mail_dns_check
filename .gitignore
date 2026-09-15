@@ -1,0 +1,8 @@
+.dart_tool/
+/pubspec.lock
+/build/
+/coverage/
+doc/api/
+.idea/
+*.iml
+.DS_Store

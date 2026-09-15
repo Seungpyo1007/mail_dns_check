@@ -1,0 +1,24 @@
+name: mail_dns_check
+description: >-
+  Check a domain's email DNS records: SPF, DMARC, DKIM, and MX, with stable
+  issue codes for missing, duplicate, and risky settings. Pure Dart.
+version: 0.0.1
+homepage: https://seungpyo.online
+repository: https://github.com/Seungpyo1007/mail_dns_check
+issue_tracker: https://github.com/Seungpyo1007/mail_dns_check/issues
+topics:
+  - email
+  - dns
+  - spf
+  - dmarc
+  - dkim
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  http: ^1.6.0
+
+dev_dependencies:
+  lints: ^6.1.0
+  test: ^1.32.0
