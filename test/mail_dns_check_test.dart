@@ -317,6 +317,39 @@ void main() {
       expect(report.issues, isEmpty);
     });
 
+    test('ignores redirect when the record has all', () async {
+      final log = <String>[];
+      final report = await MailDnsChecker(
+        client: MockClient(
+          _zone({
+            ..._healthy,
+            'example.com TXT': _txt(['v=spf1 -all redirect=gone.test']),
+          }, log),
+        ),
+      ).check('example.com');
+
+      expect(report.spfLookups, 0);
+      expect(report.spfVoidLookups, 0);
+      expect(report.issues, isEmpty);
+      expect(log, isNot(contains('gone.test TXT')));
+    });
+
+    test('flags more than two void lookups', () async {
+      final report = await _check({
+        ..._healthy,
+        'example.com TXT': _txt([
+          'v=spf1 include:a.test include:b.test include:c.test -all',
+        ]),
+      });
+
+      expect(report.spfLookups, 3);
+      expect(report.spfVoidLookups, 3);
+      expect(
+        _codes(report),
+        containsAll(['spf_include_missing', 'spf_too_many_void_lookups']),
+      );
+    });
+
     test('reports a null MX as information', () async {
       final report = await _check({
         ..._healthy,

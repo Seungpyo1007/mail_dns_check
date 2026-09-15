@@ -61,6 +61,7 @@ class MailDnsChecker {
       mx: mx.records,
       spf: spf.record,
       spfLookups: spf.lookups,
+      spfVoidLookups: spf.voidLookups,
       dmarc: dmarc.record,
       dkim: dkim.records,
       issues: [...mx.issues, ...spf.issues, ...dmarc.issues, ...dkim.issues],
@@ -94,7 +95,14 @@ class MailDnsChecker {
     return (records: records, issues: issues);
   }
 
-  Future<({SpfRecord? record, int? lookups, List<MailDnsIssue> issues})>
+  Future<
+    ({
+      SpfRecord? record,
+      int? lookups,
+      int? voidLookups,
+      List<MailDnsIssue> issues,
+    })
+  >
   _checkSpf(String domain) async {
     final issues = <MailDnsIssue>[];
     final answers = await _lookup(domain, 'TXT', issues);
@@ -110,7 +118,7 @@ class MailDnsChecker {
           ),
         );
       }
-      return (record: null, lookups: null, issues: issues);
+      return (record: null, lookups: null, voidLookups: null, issues: issues);
     }
 
     if (records.length > 1) {
@@ -163,12 +171,16 @@ class MailDnsChecker {
     }
 
     var lookups = 0;
+    var voidLookups = 0;
     // Receivers evaluate an include every time it appears, so only records on
     // the current include path are skipped (to break loops), and counting stops
     // once the limit is exceeded.
     Future<void> count(SpfRecord record, Set<String> path) async {
+      final hasAll = record.allQualifier != null;
       for (final term in record.terms) {
         if (lookups > _maxSpfLookups) return;
+        // RFC 7208 section 6.1: redirect is ignored when all is present.
+        if (term.isModifier && term.name == 'redirect' && hasAll) continue;
         final queriesDns = term.isModifier
             ? term.name == 'redirect'
             : const {'include', 'a', 'mx', 'ptr', 'exists'}.contains(term.name);
@@ -185,6 +197,8 @@ class MailDnsChecker {
         if (path.contains(target)) continue;
         final answers = await _lookup(target, 'TXT', issues);
         if (answers == null) continue;
+        // An empty answer or NXDOMAIN is a void lookup (RFC 7208 4.6.4).
+        if (answers.isEmpty) voidLookups++;
         final nested = answers.map(SpfRecord.parse).nonNulls.firstOrNull;
         if (nested == null) {
           issues.add(
@@ -214,7 +228,23 @@ class MailDnsChecker {
         ),
       );
     }
-    return (record: spf, lookups: lookups, issues: issues);
+    if (voidLookups > _maxVoidLookups) {
+      issues.add(
+        MailDnsIssue(
+          code: 'spf_too_many_void_lookups',
+          message:
+              'SPF evaluation hits $voidLookups lookups with no answer; '
+              'receivers stop with a permanent error after $_maxVoidLookups.',
+          severity: MailDnsSeverity.error,
+        ),
+      );
+    }
+    return (
+      record: spf,
+      lookups: lookups,
+      voidLookups: voidLookups,
+      issues: issues,
+    );
   }
 
   Future<({DmarcRecord? record, List<MailDnsIssue> issues})> _checkDmarc(
@@ -392,6 +422,7 @@ class MailDnsReport {
     this.mx = const <MxRecord>[],
     this.spf,
     this.spfLookups,
+    this.spfVoidLookups,
     this.dmarc,
     this.dkim = const <String, DkimRecord?>{},
     this.issues = const <MailDnsIssue>[],
@@ -413,6 +444,10 @@ class MailDnsReport {
   /// redirects. Counting stops just past the limit of 10.
   final int? spfLookups;
 
+  /// Include and redirect targets that returned no records, which receivers
+  /// limit to two.
+  final int? spfVoidLookups;
+
   /// The DMARC record, or the first one when there are several.
   final DmarcRecord? dmarc;
 
@@ -429,6 +464,7 @@ class MailDnsReport {
 }
 
 const _maxSpfLookups = 10;
+const _maxVoidLookups = 2;
 
 String _normalize(String value, {required bool isDomain}) {
   final name = value.trim().toLowerCase().replaceFirst(RegExp(r'\.$'), '');

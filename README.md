@@ -1,5 +1,7 @@
 # mail_dns_check
 
+[![pub](https://img.shields.io/pub/v/mail_dns_check)](https://pub.dev/packages/mail_dns_check) [![points](https://img.shields.io/pub/points/mail_dns_check)](https://pub.dev/packages/mail_dns_check/score) [![CI](https://github.com/Seungpyo1007/mail_dns_check/actions/workflows/ci.yml/badge.svg)](https://github.com/Seungpyo1007/mail_dns_check/actions/workflows/ci.yml)
+
 Check whether a domain's email DNS is set up correctly: SPF, DMARC, DKIM, and
 MX records, with a stable issue code for every problem. Queries go through
 public DNS-over-HTTPS, so there is no API key and no paid service in between.
@@ -29,7 +31,8 @@ Public DNS (`https://dns.google/resolve`) both send
 - **MX**: records sorted by priority, missing MX, and null MX (RFC 7505).
 - **SPF**: parsed terms, duplicate records, unknown mechanisms, `+all`, a
   missing `all`, deprecated `ptr`, includes without SPF, and the RFC 7208
-  limit of 10 DNS lookups counted through includes and redirects.
+  limits of 10 DNS lookups and two void lookups, counted through includes and
+  redirects. A `redirect` next to `all` is ignored, as the RFC requires.
 - **DMARC**: parsed tags, duplicate records, a missing or invalid policy,
   `p=none`, partial `pct`, and missing aggregate reports.
 - **DKIM**: keys for the selectors you pass, followed through CNAMEs, and
@@ -43,7 +46,7 @@ Public DNS (`https://dns.google/resolve`) both send
 
 ```yaml
 dependencies:
-  mail_dns_check: ^0.0.1
+  mail_dns_check: ^0.0.2
 ```
 
 ## Issue codes
@@ -60,6 +63,7 @@ dependencies:
 | `spf_ptr` | warning | Deprecated `ptr` mechanism |
 | `spf_include_missing` | error | An include or redirect target has no SPF record |
 | `spf_too_many_lookups` | error | More than 10 DNS lookups |
+| `spf_too_many_void_lookups` | error | More than two include or redirect targets with no records |
 | `dmarc_missing` | warning | No DMARC record |
 | `dmarc_multiple` | error | More than one DMARC record |
 | `dmarc_invalid` | error | Missing or unknown `p=` policy |
@@ -92,8 +96,9 @@ An injected client is not closed by `close()`.
   `selector2` for Microsoft 365.
 - A subdomain without its own DMARC record is reported as `dmarc_missing`,
   even when the organizational domain's record covers it.
-- SPF macros such as `%{i}` are not expanded, and the RFC 7208 limit of two
-  void lookups is not checked.
+- SPF macros such as `%{i}` are not expanded, and the targets of `a:`, `mx:`,
+  and `exists:` are not resolved: they count toward the limit of 10 lookups but
+  not toward the void lookup limit.
 - Every queried name is sent to the DNS-over-HTTPS resolver.
 
 ## Flutter example
