@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">mail_dns_check logo</title>
+  <desc id="desc">A green rounded square containing a cream envelope with a dark green fold line and a verified check badge.</desc>
+
+  <rect x="12" y="12" width="488" height="488" rx="126" fill="#2FA36B"/>
+
+  <rect x="110" y="160" width="288" height="188" rx="28"
+        fill="#FFF9F3" stroke="#10492F" stroke-width="10"
+        stroke-linejoin="round"/>
+
+  <path d="M121 178 L254 275 L387 178"
+        fill="none" stroke="#10492F" stroke-width="18"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="361" cy="350" r="67"
+          fill="#FFF9F3" stroke="#10492F" stroke-width="10"/>
+
+  <path d="M329 350 L351 372 L393 326"
+        fill="none" stroke="#10492F" stroke-width="18"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
