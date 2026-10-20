@@ -55,7 +55,7 @@ Public DNS (`https://dns.google/resolve`) both send
 
 ```yaml
 dependencies:
-  mail_dns_check: ^0.0.2
+  mail_dns_check: ^0.0.3
 ```
 
 ## Issue codes

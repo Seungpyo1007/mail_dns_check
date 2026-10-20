@@ -1,3 +1,7 @@
+## 0.0.3
+
+* Center the README header and add the logo and a license badge.
+
 ## 0.0.2
 
 * Fix SPF lookup counting following `redirect` in a record that also has an
